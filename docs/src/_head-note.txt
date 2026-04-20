@@ -1,0 +1,1 @@
+/* Shared HTML head scaffold — DO NOT EDIT individual pages' head manually; copy this block. */
