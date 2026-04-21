@@ -4,38 +4,35 @@ const { useState, useEffect } = React;
 // ============ Shared building blocks ============
 
 function Nav({ variant = 'light', activeAccent, setAccent, currentDirection, setDirection }) {
-  const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', on);
     return () => window.removeEventListener('scroll', on);
   }, []);
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [menuOpen]);
   const dark = variant === 'dark';
   const navStyles = {
     position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
     transition: 'all .4s ease',
-    background: scrolled
-      ? (dark ? 'rgba(8,26,39,0.88)' : 'rgba(251,248,242,0.92)')
+    background: scrolled || menuOpen
+      ? (dark ? 'rgba(8,26,39,0.92)' : 'rgba(251,248,242,0.94)')
       : 'transparent',
-    backdropFilter: scrolled ? 'blur(14px) saturate(1.1)' : 'none',
+    backdropFilter: (scrolled || menuOpen) ? 'blur(14px) saturate(1.1)' : 'none',
     borderBottom: scrolled ? `1px solid ${dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}` : '1px solid transparent',
     color: dark ? 'var(--ivory)' : 'var(--ink)',
   };
-  const linkStyle = {
-    fontFamily: 'var(--sans)',
-    fontSize: 12,
-    letterSpacing: '0.12em',
-    textTransform: 'uppercase',
-    fontWeight: 500,
-    padding: '10px 2px',
-    position: 'relative',
-    cursor: 'pointer',
-  };
+
+  const burgerBar = { width: 22, height: 1.5, background: 'currentColor', transition: 'transform .25s, opacity .25s' };
 
   return (
+    <>
     <header style={navStyles}>
-      <div style={{ maxWidth: 1360, margin: '0 auto', padding: '18px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32 }}>
+      <div style={{ maxWidth: 1360, margin: '0 auto', padding: '18px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
         <a href="index.html" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <Wordmark dark={dark} />
         </a>
@@ -46,7 +43,7 @@ function Nav({ variant = 'light', activeAccent, setAccent, currentDirection, set
           <NavLink label="News" dark={dark} href="news.html" />
           <NavLink label="Contact" dark={dark} href="contact.html" />
         </nav>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+        <div className="desktop-nav-right" style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <div className="pill" style={{ borderColor: dark ? 'rgba(255,255,255,0.18)' : 'var(--line)', color: dark ? 'var(--ivory)' : 'var(--graphite)' }}>
             <span className="status" />
             <span>24/7</span>
@@ -54,8 +51,45 @@ function Nav({ variant = 'light', activeAccent, setAccent, currentDirection, set
             <span style={{ letterSpacing: '0.06em' }}>{window.BAMBERRY.data.phone}</span>
           </div>
         </div>
+        <button
+          className="mobile-nav-toggle"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen(o => !o)}
+          style={{
+            width: 44, height: 44,
+            flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            gap: 5, color: dark ? 'var(--ivory)' : 'var(--ink)', cursor: 'pointer',
+          }}
+        >
+          <span style={{ ...burgerBar, transform: menuOpen ? 'translateY(7px) rotate(45deg)' : 'none' }} />
+          <span style={{ ...burgerBar, opacity: menuOpen ? 0 : 1 }} />
+          <span style={{ ...burgerBar, transform: menuOpen ? 'translateY(-6px) rotate(-45deg)' : 'none' }} />
+        </button>
       </div>
     </header>
+    <div className={`mobile-nav-panel ${dark ? 'mobile-nav-panel--dark' : 'mobile-nav-panel--light'} ${menuOpen ? 'is-open' : ''}`}>
+        <a href="about.html">About</a>
+        <a href="criminal-law.html">Criminal Law</a>
+        <div className="mobile-nav-sub">
+          <a href="sexual-offences.html" style={{ borderBottom: 'none' }}>Sexual Offences</a>
+          <a href="violence.html" style={{ borderBottom: 'none' }}>Violence</a>
+          <a href="murder-manslaughter.html" style={{ borderBottom: 'none' }}>Murder & Manslaughter</a>
+          <a href="drug-offences.html" style={{ borderBottom: 'none' }}>Drug Offences</a>
+          <a href="fraud-dishonesty.html" style={{ borderBottom: 'none' }}>Fraud & Dishonesty</a>
+          <a href="youth-justice.html" style={{ borderBottom: 'none' }}>Youth Justice</a>
+          <a href="bail-applications.html" style={{ borderBottom: 'none' }}>Bail Applications</a>
+          <a href="appeals.html" style={{ borderBottom: 'none' }}>Appeals</a>
+        </div>
+        <a href="locations.html">Locations</a>
+        <a href="news.html">News</a>
+        <a href="contact.html">Contact</a>
+        <div className="mobile-nav-cta">
+          <a href="contact.html" className="btn btn--primary" style={{ justifyContent: 'center' }}>Book free consultation <span className="arrow">→</span></a>
+          <a href={`tel:${window.BAMBERRY.data.phoneRaw}`} className="btn btn--accent" style={{ justifyContent: 'center' }}>Call 24/7 · {window.BAMBERRY.data.phone}</a>
+        </div>
+    </div>
+    </>
   );
 }
 

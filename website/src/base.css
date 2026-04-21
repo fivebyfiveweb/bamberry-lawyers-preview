@@ -122,4 +122,161 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 /* Container */
 .wrap { max-width: 1360px; margin: 0 auto; padding: 0 40px; }
-@media (max-width: 768px) { .wrap { padding: 0 24px; } }
+@media (max-width: 768px) { .wrap { padding: 0 20px; } }
+
+/* -----------------------------------------------------------
+   Mobile responsive overrides
+   The site is built with inline React styles using fixed
+   grid/flex layouts. These attribute selectors override the
+   inline styles at narrow viewports without touching every
+   component. Anything that must differ (e.g. nav hamburger)
+   is handled with dedicated classes.
+   ----------------------------------------------------------- */
+
+/* Nav: hamburger visibility */
+.mobile-nav-toggle { display: none; }
+.mobile-nav-panel  { display: none; }
+
+@media (max-width: 900px) {
+  /* Hide desktop nav and the 24/7 pill on narrow screens */
+  .desktop-nav,
+  .desktop-nav-right { display: none !important; }
+  .mobile-nav-toggle { display: inline-flex !important; }
+}
+
+/* Mobile nav panel (shown via JS state toggle) */
+.mobile-nav-panel {
+  position: fixed; inset: 0; z-index: 90;
+  padding: 96px 28px 40px;
+  overflow-y: auto;
+  animation: fadeDown .25s ease;
+}
+.mobile-nav-panel.is-open { display: block; }
+.mobile-nav-panel--light { background: var(--paper); color: var(--ink); }
+.mobile-nav-panel--dark  { background: var(--ink-deep); color: var(--ivory); }
+.mobile-nav-panel a {
+  display: block;
+  font-family: var(--serif);
+  font-size: 30px;
+  letter-spacing: -0.01em;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(128,128,128,0.18);
+}
+.mobile-nav-panel .mobile-nav-sub {
+  padding: 4px 0 10px 18px;
+  border-bottom: 1px solid rgba(128,128,128,0.18);
+  margin-bottom: 4px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.mobile-nav-panel .mobile-nav-sub a {
+  font-family: var(--sans);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 6px 0;
+  opacity: 0.75;
+  border-bottom: none !important;
+}
+.mobile-nav-panel .mobile-nav-cta {
+  margin-top: 28px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+@media (max-width: 768px) {
+  /* 1. Collapse every inline CSS grid to a single column.
+     React serializes `gridTemplateColumns` → `grid-template-columns`. */
+  [style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* And any explicit column-span on children becomes a no-op */
+  [style*="grid-column"] {
+    grid-column: auto !important;
+  }
+
+  /* 2. Sticky sidebars don't work in a single-column stack */
+  [style*="position: sticky"],
+  [style*="position:sticky"] {
+    position: static !important;
+  }
+
+  /* 3. Tame extreme vertical padding */
+  [style*="padding: 160px 0"],
+  [style*="padding:160px 0"] { padding-top: 72px !important; padding-bottom: 72px !important; }
+  [style*="padding: 140px 0"],
+  [style*="padding:140px 0"] { padding-top: 64px !important; padding-bottom: 64px !important; }
+  [style*="padding: 120px 0"],
+  [style*="padding:120px 0"] { padding-top: 56px !important; padding-bottom: 56px !important; }
+  [style*="padding: 100px 0"],
+  [style*="padding:100px 0"] { padding-top: 52px !important; padding-bottom: 52px !important; }
+  [style*="padding: 90px 0"],
+  [style*="padding:90px 0"]  { padding-top: 48px !important; padding-bottom: 48px !important; }
+
+  /* 4. Clamp oversized gap values on any flex/grid container.
+     Only the specific larger gaps we use in inline styles. */
+  [style*="gap: 80px"],
+  [style*="gap:80px"]  { gap: 32px !important; }
+  [style*="gap: 60px"],
+  [style*="gap:60px"]  { gap: 28px !important; }
+  [style*="gap: 48px"],
+  [style*="gap:48px"]  { gap: 24px !important; }
+  [style*="gap: 40px"],
+  [style*="gap:40px"]  { gap: 22px !important; }
+
+  /* 5. Section hero top padding (nav clearance) */
+  section[style*="paddingTop: 160"],
+  section[style*="padding-top: 160"] { padding-top: 110px !important; }
+  section[style*="paddingTop: 120"],
+  section[style*="padding-top: 120"] { padding-top: 96px !important; }
+
+  /* 6. Buttons — stack full width for easier tapping */
+  .btn { padding: 14px 18px; font-size: 12px; }
+
+  /* 7. Images/aspect boxes inside a grid: never force a fixed column width */
+  [style*="maxWidth: 300"],
+  [style*="max-width: 300"] { max-width: 100% !important; }
+  [style*="maxWidth: 420"],
+  [style*="max-width: 420"] { max-width: 100% !important; }
+
+  /* 8. Hero absolute-positioned meta row (HeroA bottom-left) */
+  section > div[style*="bottom: 40"][style*="left: 40"],
+  section > div[style*="bottom:40"][style*="left:40"] {
+    position: static !important;
+    margin-top: 32px;
+    padding: 0 20px;
+  }
+
+  /* 9. Footer lower bar: stack */
+  footer [style*="justify-content: space-between"][style*="padding-top: 30"] {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start !important;
+  }
+
+  /* 10. Huge decorative background "counsel." word — shrink */
+  [aria-hidden][style*="font-size: clamp(128px"],
+  [aria-hidden][style*="font-size: clamp(112px"] {
+    font-size: clamp(64px, 22vw, 140px) !important;
+  }
+
+  /* 11. Reduce wins/metric font size */
+  [style*="font-size: 72px"] { font-size: 52px !important; }
+
+  /* 12. Sub-practice pill table: ensure wrapping */
+  [style*="80px 1fr 1.2fr auto"],
+  [style*="70px 1.2fr 1.8fr auto"] {
+    gap: 8px !important;
+  }
+
+  /* 13. Direction switcher (A/B) — smaller on mobile */
+  body > div[style*="position: fixed"][style*="right: 16"] button {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 15px !important;
+  }
+}
+
+/* Prevent horizontal page scroll from any stray oversized element.
+   `clip` (not `hidden`) avoids creating a new scroll container that
+   would break vertical scrolling on iOS Safari / some Android browsers. */
+html, body { overflow-x: clip; }
